@@ -8,12 +8,13 @@ stick this in a file with a .json extension.
 
 ```json
 {
-  "mcpServer": [
-    "my-server-name": { // name of the server.
-    "type": "http", // transport name, use http or sse
-    "url": "https://example.com/mcp" // if http or sse you can use the url.
+  "mcpServers": {
+    "my-server-name": {
+      // name of the server.
+      "type": "http", // transport name, use http or sse
+      "url": "https://example.com/mcp" // if http or sse you can use the url.
     }
-  ]
+  }
 }
 ```
 
@@ -37,12 +38,12 @@ When loaded as tools every tools will be prefixed with mcp**<server-name>**<tool
 
 ```json
 {
-  "mcpServer": [
+  "mcpServers": {
     "my-server-name": {
-    "type": "http", // or sse (deprecated)
-    "url": "https://example.com/mcp"
+      "type": "http", // or sse (deprecated)
+      "url": "https://example.com/mcp"
     }
-  ]
+  }
 }
 ```
 
@@ -100,7 +101,7 @@ This allows users to specify which tools, prompts and resources are allowed to b
 
 ```json
 {
-  "mcpServer": [
+  "mcpServers": {
     "my-server-name": {
     "type": "http", // or sse (deprecated)
     "url": "https://example.com/mcp",
@@ -108,7 +109,7 @@ This allows users to specify which tools, prompts and resources are allowed to b
     "allowedPrompts": ["prompt1", "prompt2"] // optional
     "allowedResources": ["resource1", "resource2"] // optional
     }
-  ]
+  }
 }
 ```
 
@@ -118,13 +119,13 @@ This allows users to disable a server without removing it from a config. This is
 
 ```json
 {
-  "mcpServer": [
+  "mcpServers": {
     "my-server-name": {
-    "type": "http", // or sse (deprecated)
-    "url": "https://example.com/mcp",
-    "disabled": true // optional
+      "type": "http", // or sse (deprecated)
+      "url": "https://example.com/mcp",
+      "disabled": true // optional
     }
-  ]
+  }
 }
 ```
 
