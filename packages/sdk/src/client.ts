@@ -1,0 +1,1 @@
+// here i imagine we will import the @modelcontextprotocol/sdk client. we add the lifecycle stuff we need. 

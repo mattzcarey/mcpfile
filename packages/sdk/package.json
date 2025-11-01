@@ -1,0 +1,28 @@
+{
+	"name": "@mcpfile/sdk",
+	"version": "0.0.1",
+	"description": "alternative mcp client built to use mcpfiles",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"typecheck": "tsc --noEmit",
+		"dev": "tsdown --watch"
+	},
+	"author": "Matt Carey",
+	"license": "MIT",
+	"devDependencies": {
+		"tsdown": "latest"
+	}
+}

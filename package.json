@@ -1,0 +1,23 @@
+{
+	"name": "mcpfile",
+	"version": "0.0.1",
+	"private": true,
+	"description": "file format for declaring mcp servers for an agent",
+	"author": "Matt Carey",
+	"license": "MIT",
+	"scripts": {
+		"check": "biome check .",
+		"format": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.2",
+		"@types/node": "^24.9.2",
+		"wrangler": "^4.45.3",
+		"typescript": "^5.7.3"
+	},
+	"packageManager": "npm@10.9.3",
+	"workspaces": [
+		"sites/*",
+		"packages/*"
+	]
+}
