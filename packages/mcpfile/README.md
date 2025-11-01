@@ -174,9 +174,9 @@ Examples
 }
 ```
 
-## McpFile SDK (for agent developers)
+## SDK (for agent developers)
 
-The McpFile SDK consists of 4 parts which you can use together or seperately as you see fit.
+The SDK consists of 4 parts which you can use together or seperately as you see fit.
 
 ### Parser
 

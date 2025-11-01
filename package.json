@@ -1,5 +1,5 @@
 {
-	"name": "mcpfile",
+	"name": "@mcpfile/root",
 	"version": "0.0.1",
 	"private": true,
 	"description": "file format for declaring mcp servers for an agent",

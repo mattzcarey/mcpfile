@@ -1,7 +1,7 @@
 {
-	"name": "@mcpfile/sdk",
+	"name": "mcpfile",
 	"version": "0.0.1",
-	"description": "alternative mcp client built to use mcpfiles",
+	"description": "alternative mcp client, built for production",
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
@@ -13,10 +13,12 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"package.json",
+		"README.md"
 	],
 	"scripts": {
-		"build": "tsdown",
+		"build": "tsdown src/index.ts",
 		"typecheck": "tsc --noEmit",
 		"dev": "tsdown --watch"
 	},
