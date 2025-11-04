@@ -1,0 +1,166 @@
+---
+title: Specification
+description: Complete specification for the McpFile format
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+McpFiles are defined in JSON. They normally have the name `.mcp.json` but you can call them anything. Particular implementation is up to the client but it would be expected that any file called `.mcp.json` in a particular working directory should be loaded by default.
+
+## Server Names
+
+<Callout type="warn">
+When loaded as tools, every tool will be prefixed with `mcp__<server-name>__<tool-name>`. This namespacing is to prevent name collisions. As a result, server names should be alphanumeric with `-_` and no spaces. Invalid names will throw errors.
+</Callout>
+
+## Remote Servers
+
+Remote servers connect to MCP servers over HTTP or SSE (deprecated).
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "type": "http",
+      "url": "https://example.com/mcp"
+    }
+  }
+}
+```
+
+## Local Servers
+
+Local servers run as child processes.
+
+### Node.js
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "npx",
+      "args": ["-y", "mcp-server"],
+      "env": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
+```
+
+### Python
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "python",
+      "args": ["mcp-server.py"],
+      "env": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
+```
+
+### Environment Files
+
+You can also point to an env file with the `envFile` parameter:
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "python",
+      "args": ["mcp-server.py"],
+      "envFile": ".env"
+    }
+  }
+}
+```
+
+## Allowed Tools
+
+This allows users to specify which tools, prompts and resources are allowed to be used by the agent. This is completely optional. By default all are allowed.
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "type": "http",
+      "url": "https://example.com/mcp",
+      "allowedTools": ["tool1", "tool2"],
+      "allowedPrompts": ["prompt1", "prompt2"],
+      "allowedResources": ["resource1", "resource2"]
+    }
+  }
+}
+```
+
+<Callout type="info">
+Tools follow either the exact name of the tool or the namespaced version: `mcp__<server-name>__<tool-name>`
+</Callout>
+
+## Disabled
+
+This allows users to disable a server without removing it from a config. This is completely optional. By default all are enabled.
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "type": "http",
+      "url": "https://example.com/mcp",
+      "disabled": true
+    }
+  }
+}
+```
+
+## Config Interpolation
+
+<Callout type="note">
+Borrowed from [Cursor](https://cursor.com/docs/context/mcp) since they did a really good job.
+</Callout>
+
+Use variables in mcp.json values. McpFile resolves variables in these fields: `command`, `args`, `env`, `url`, and `headers`.
+
+### Supported Syntax
+
+- `${env:NAME}` - environment variables
+- `${userHome}` - path to your home folder
+- `${workspaceFolder}` - project root (the folder that contains `.cursor/mcp.json`)
+- `${workspaceFolderBasename}` - name of the project root
+- `${pathSeparator}` and `${/}` - OS path separator
+
+### Local Server Example
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "local-server": {
+      "command": "python",
+      "args": ["${workspaceFolder}/tools/mcp_server.py"],
+      "env": {
+        "API_KEY": "${env:API_KEY}"
+      }
+    }
+  }
+}
+```
+
+### Remote Server Example
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "remote-server": {
+      "url": "https://api.example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:MY_SERVICE_TOKEN}"
+      }
+    }
+  }
+}
+```

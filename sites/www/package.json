@@ -1,27 +1,30 @@
 {
-	"author": "Matt Carey",
-	"description": "site for mcp file",
-	"keywords": [],
-	"license": "MIT",
-	"name": "@mcpfile/www",
-	"private": true,
-	"scripts": {
-		"deploy": "vite build && wrangler deploy",
-		"start": "vite dev",
-		"types": "wrangler types"
-	},
-	"type": "module",
-	"version": "0.0.1",
-	"devDependencies": {
-		"@cloudflare/vite-plugin": "^1.13.18",
-		"@types/react-dom": "^19.2.2",
-		"@vitejs/plugin-react": "^5.1.0",
-		"vite": "^7.1.12"
-	},
-	"dependencies": {
-		"lucide-react": "^0.454.0",
-		"react": "^19.2.0",
-		"react-dom": "^19.2.0",
-		"react-markdown": "^9.0.1"
-	}
+  "name": "@mcpfile/www",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.9",
+    "@astrojs/react": "^4.4.1",
+    "@orama/orama": "^3.1.16",
+    "astro": "^5.15.3",
+    "fumadocs-core": "^16.0.7",
+    "fumadocs-ui": "^16.0.7",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.16",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "tailwindcss": "^4.1.16"
+  }
 }

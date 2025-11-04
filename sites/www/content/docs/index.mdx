@@ -1,0 +1,47 @@
+---
+title: McpFile
+description: A standard file format for MCP Clients and Agents to declare MCP Servers
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+
+## TLDR
+
+Stick this in a file with a `.json` extension:
+
+```json title="example.mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "type": "http",
+      "url": "https://example.com/mcp"
+    }
+  }
+}
+```
+
+<Callout type="info">
+  The application/agent developer can use the McpFile SDK to connect to the
+  servers, manage authentication, get lovely lifecycle hooks and helper methods
+  which don't exist on the MCP SDK Client (_yet_).
+</Callout>
+
+## Motivation
+
+This came about because every MCP Client (Cursor, Claude Code, Claude Desktop, Windsurf, OpenCode, Gemini CLI, Codex CLI etc) use a slightly different standard for declaring MCP servers for an agent.
+
+What's more, there is no good standard definition for an MCP client which can be used in production. MCP SDK Client can only connect to one server at a time, there are no lifecycle hooks, you can't dump the state to a file (specifically for durable object hibernation). This causes loads of issues since everyone has to reinvent the wheel.
+
+This project includes both a file format specification and an SDK for use with McpFile. The hope is that this can all be pushed upstream to the official SDK.
+
+## Next Steps
+
+<Cards>
+  <Card title="Specification" href="/specification">
+    Learn about the complete McpFile specification
+  </Card>
+  <Card title="SDK Documentation" href="/sdk">
+    Explore the McpFile SDK for agent developers
+  </Card>
+</Cards>

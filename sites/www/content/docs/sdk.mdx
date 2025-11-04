@@ -1,0 +1,58 @@
+---
+title: SDK
+description: A Production Ready client SDK (coming soon)
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+
+The McpFile SDK consists of 4 parts which you can use together or separately as you see fit.
+
+## Parser
+
+The parser takes a mcpfile and returns a list of servers and the config to connect to each server.
+
+<Callout type="info">
+  This is directly pluggable into the MCP SDK `Client.connect()` function.
+</Callout>
+
+```typescript title="example.ts"
+import { parser } from "@mcpfile/sdk";
+
+const servers = await parser.parse(".mcp.json");
+// Returns array of server configs ready for Client.connect()
+```
+
+## Client
+
+This client is essentially an extension to the McpSDK Client. It adds lifecycle hooks and handles authentication and helper methods which don't exist on the MCP SDK Client (_yet_).
+
+<Callout type="warn">
+  Lifecycle hooks are currently TBC (to be completed).
+</Callout>
+
+```typescript title="example.ts"
+import { Client } from "@mcpfile/sdk";
+
+const client = new Client({
+  onConnect: () => console.log("Connected"),
+  onDisconnect: () => console.log("Disconnected"),
+});
+```
+
+## Manager
+
+Here we add all the juicy bits that you need for production. It will handle multiple servers connected simultaneously.
+
+```typescript title="example.ts"
+import { Manager } from "@mcpfile/sdk";
+
+const manager = new Manager();
+await manager.connectAll(".mcp.json");
+```
+
+## Router
+
+<Callout type="note">
+  Router functionality is currently in development (TBC).
+</Callout>

@@ -1,17 +1,20 @@
 {
-	"$schema": "../../node_modules/wrangler/config-schema.json",
-	"name": "mcpfile-www",
-	"main": "src/server.ts",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mcpfile-www",
+  "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-10-08",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "binding": "ASSETS",
+    "directory": "./dist"
   },
-	"routes": [
-		{
-			"custom_domain": true,
-			"pattern": "mcpfile.org"
-		}
-	]
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "pattern": "mcpfile.org",
+      "custom_domain": true
+    }
+  ]
 }
