@@ -10,8 +10,10 @@ import {
   remarkNpm,
   remarkStructure,
 } from 'fumadocs-core/mdx-plugins';
+import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
+  site: "https://mcpfile.org",
   integrations: [
     react(),
     mdx({
@@ -29,4 +31,9 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
+  }),
 });
