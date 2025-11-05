@@ -1,7 +1,7 @@
 {
 	"$schema": "../../node_modules/wrangler/config-schema.json",
 	"name": "mcpfile-www",
-	"compatibility_date": "2025-06-17",
+	"compatibility_date": "2025-11-05",
 	"compatibility_flags": ["nodejs_compat"],
 	"main": "./workers/app.ts",
 	"assets": {
