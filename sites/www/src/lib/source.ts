@@ -1,54 +1,79 @@
-import type { Source } from 'fumadocs-core/source';
-import { loader } from 'fumadocs-core/source';
-import { type CollectionEntry, getCollection } from 'astro:content';
-import * as path from 'node:path';
-import type { StructuredData } from 'fumadocs-core/mdx-plugins';
+import { docs } from "../../.source";
 
-export const source = loader({
-  source: await createMySource(),
-  baseUrl: '/docs/',
-});
+// Load meta.json data at module level with top-level await
+const metaPath = "meta.json";
+const metaMap = docs.meta as any;
+const meta = metaMap[metaPath] ? await metaMap[metaPath]() : null;
 
-const docs = import.meta.glob('/content/docs/**/*.{md,mdx}');
+// Custom source for client-side navigation
+export const source = {
+  getPage(slugs: string[]) {
+    const path = slugs.length === 0 ? "index.mdx" : slugs.join("/") + ".mdx";
+    const docMap = docs.doc as any;
+    if (docMap[path]) {
+      return { file: { path } };
+    }
+    return null;
+  },
 
-export async function getFullExport(entry: CollectionEntry<'docs'>) {
-  return (await docs['/' + entry.filePath!]()) as {
-    structuredData: StructuredData;
-  };
-}
+  pageTree: buildPageTree(),
+};
 
-async function createMySource() {
-  const out: Source<{
-    metaData: CollectionEntry<'meta'>['data'];
-    pageData: CollectionEntry<'docs'>['data'] & {
-      _raw: CollectionEntry<'docs'>;
-    };
-  }> = {
-    files: [],
-  };
+function buildPageTree() {
+  const docMap = docs.doc as any;
+  const children: any[] = [];
 
-  for (const page of await getCollection('docs')) {
-    const virtualPath = path.relative('content/docs', page.filePath!);
+  if (meta && meta.pages) {
+    // Use meta.json order
+    for (const pageName of meta.pages) {
+      const path = pageName === "index" ? "index.mdx" : `${pageName}.mdx`;
 
-    out.files.push({
-      type: 'page',
-      path: virtualPath,
-      data: {
-        ...page.data,
-        _raw: page,
-      },
-    });
+      if (docMap[path]) {
+        const cleanPath = path.replace(/\.mdx?$/, "");
+        const url = cleanPath === "index" ? "/docs" : `/docs/${cleanPath}`;
+
+        const name = cleanPath === "index"
+          ? "Introduction"
+          : cleanPath
+              .split(/[-_]/)
+              .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
+
+        children.push({
+          type: "page" as const,
+          name,
+          url,
+          external: false,
+        });
+      }
+    }
+  } else {
+    // Fallback: show all pages in alphabetical order
+    const paths = Object.keys(docMap).sort();
+
+    for (const path of paths) {
+      const cleanPath = path.replace(/\.mdx?$/, "");
+      const url = cleanPath === "index" ? "/docs" : `/docs/${cleanPath}`;
+
+      const name = cleanPath === "index"
+        ? "Introduction"
+        : cleanPath
+            .split(/[-_]/)
+            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+      children.push({
+        type: "page" as const,
+        name,
+        url,
+        external: false,
+      });
+    }
   }
 
-  for (const meta of await getCollection('meta')) {
-    const virtualPath = path.relative('content/docs', meta.filePath!);
-
-    out.files.push({
-      type: 'meta',
-      path: virtualPath,
-      data: meta.data,
-    });
-  }
-
-  return out;
+  return {
+    $id: "root",
+    name: meta?.title || "Docs",
+    children,
+  };
 }
