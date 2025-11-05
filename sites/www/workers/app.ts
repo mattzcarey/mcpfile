@@ -68,7 +68,7 @@ app.get("/docs/:name{.+\\.md$}", async (c) => {
 });
 
 // Generate llms.txt - list of all markdown file URLs with titles and descriptions
-app.get("/docs/llms.txt", async (c) => {
+app.get("/llms.txt", async (c) => {
   try {
     // Fetch meta.json to get the list of docs
     const metaResponse = await c.env.ASSETS.fetch(
@@ -138,7 +138,7 @@ app.get("/docs/llms.txt", async (c) => {
 });
 
 // Generate llms-full.txt - all docs concatenated
-app.get("/docs/llms-full.txt", async (c) => {
+app.get("/llms-full.txt", async (c) => {
   try {
     // Fetch meta.json to get the list of docs
     const metaResponse = await c.env.ASSETS.fetch(
