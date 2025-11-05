@@ -1,0 +1,39 @@
+---
+import Layout from '@/components/layout.astro';
+import '@/styles/global.css';
+---
+
+<Layout>
+  <title>McpFile - Server Configuration for Clients and Agents</title>
+  <meta name="title" content="McpFile" />
+  <meta name="description" content="Server Configuration for Clients and Agents" />
+
+  <main class="flex-1 flex flex-col items-center justify-center px-4 py-16">
+    <div class="max-w-4xl mx-auto text-center space-y-8">
+      <h1 class="text-5xl font-bold tracking-tight" transition:animate="fade">
+        McpFile
+      </h1>
+
+      <p class="text-xl text-fd-muted-foreground max-w-2xl mx-auto" transition:animate="fade">
+        Server Configuration for Clients and Agents
+      </p>
+
+      <div class="flex gap-4 justify-center pt-4">
+        <a
+          href="/docs"
+          class="px-6 py-3 bg-fd-primary text-fd-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          Get Started
+        </a>
+        <a
+          href="https://github.com/mattzcarey/mcpfile"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-6 py-3 border border-fd-border rounded-lg font-medium hover:bg-fd-accent transition-colors"
+        >
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

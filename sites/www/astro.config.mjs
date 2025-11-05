@@ -14,6 +14,9 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   site: "https://mcpfile.org",
+  prefetch: {
+    prefetchAll: true,
+  },
   integrations: [
     react(),
     mdx({
@@ -34,6 +37,11 @@ export default defineConfig({
   adapter: cloudflare({
     platformProxy: {
       enabled: true,
+    },
+    routes: {
+      extend: {
+        exclude: [{ pattern: '/docs/*' }],
+      }
     },
   }),
 });

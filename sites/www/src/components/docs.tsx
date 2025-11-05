@@ -41,7 +41,16 @@ export function Docs({
           }}
           nav={{
             title: 'McpFile',
+            url: '/',
+            transparentMode: 'top',
           }}
+          links={[
+            {
+              text: 'GitHub',
+              url: 'https://github.com/mattzcarey/mcpfile',
+              external: true,
+            },
+          ]}
         >
           <DocsPage {...page}>{children}</DocsPage>
         </DocsLayout>

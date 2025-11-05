@@ -3,7 +3,7 @@
   "name": "mcpfile-www",
   "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-10-08",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist"
