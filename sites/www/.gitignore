@@ -201,3 +201,6 @@ dist
 ### React Router ###
 .react-router/
 /build/
+
+### Generated raw docs ###
+/public/raw-docs/

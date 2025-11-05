@@ -4,8 +4,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
+		"copy-raw-docs": "mkdir -p public/raw-docs && cp content/docs/*.mdx content/docs/meta.json public/raw-docs/",
+		"dev": "npm run copy-raw-docs && vite dev",
+		"build": "npm run copy-raw-docs && vite build",
 		"deploy": "npm run build && wrangler deploy",
 		"cf-typegen": "wrangler types",
 		"typecheck": "tsc -b",
