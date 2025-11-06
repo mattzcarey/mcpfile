@@ -3,26 +3,57 @@ title: Specification
 description: Complete specification for the McpFile format
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Callout } from "fumadocs-ui/components/callout";
 
-McpFiles are defined in JSON. They normally have the name `.mcp.json` but you can call them anything. Particular implementation is up to the client but it would be expected that any file called `.mcp.json` in a particular working directory should be loaded by default.
+McpFiles are defined in JSON. They normally have the name `.mcp.json` but you CAN call them anything with the extension `.json`. Particular implementation is up to the client but it would be expected that any file called `.mcp.json` in a particular working directory SHOULD be loaded by default.
 
 ## Server Names
 
 <Callout type="warn">
-When loaded as tools, every tool will be prefixed with `mcp__<server-name>__<tool-name>`. This namespacing is to prevent name collisions. As a result, server names should be alphanumeric with `-_` and no spaces. Invalid names will throw errors.
+When loaded as tools, every tool will be prefixed with `mcp__<server-name>__<tool-name>`. This namespacing is to prevent name collisions. As a result, server names MUST be alphanumeric with `-_` and no spaces. Invalid names will throw errors.
 </Callout>
 
 ## Remote Servers
 
 Remote servers connect to MCP servers over HTTP or SSE (deprecated).
 
+### Streamable HTTP Transport
+
 ```json title=".mcp.json"
 {
   "mcpServers": {
     "my-server-name": {
-      "type": "http",
       "url": "https://example.com/mcp"
+    }
+  }
+}
+```
+
+### SSE Transport
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "type": "sse"
+      "url": "https://example.com/sse"
+    }
+  }
+}
+```
+
+Type is optional and defaults to `http` (streamable-http transport) although `sse` is supported.
+
+### Custom headers
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "my-server-name": {
+      "url": "https://example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer my-token"
+      }
     }
   }
 }
@@ -30,7 +61,7 @@ Remote servers connect to MCP servers over HTTP or SSE (deprecated).
 
 ## Local Servers
 
-Local servers run as child processes.
+Local servers run as child processes. McpFile supports the `stdio` transport.
 
 ### Node.js
 
@@ -80,7 +111,9 @@ You can also point to an env file with the `envFile` parameter:
 }
 ```
 
-## Allowed Tools
+## Common Fields
+
+### Allowed Tools
 
 This allows users to specify which tools, prompts and resources are allowed to be used by the agent. This is completely optional. By default all are allowed.
 
@@ -88,21 +121,22 @@ This allows users to specify which tools, prompts and resources are allowed to b
 {
   "mcpServers": {
     "my-server-name": {
-      "type": "http",
       "url": "https://example.com/mcp",
-      "allowedTools": ["tool1", "tool2"],
-      "allowedPrompts": ["prompt1", "prompt2"],
-      "allowedResources": ["resource1", "resource2"]
+      "allowed": {
+        "tools": ["tool1", "tool2"],
+        "prompts": ["prompt1", "prompt2"],
+        "resources": ["resource1", "resource2"]
+      }
     }
   }
 }
 ```
 
 <Callout type="info">
-Tools follow either the exact name of the tool or the namespaced version: `mcp__<server-name>__<tool-name>`
+Tool, prompt and resource names follow either the exact name or the namespaced version eg. `mcp__<server-name>__<tool-name>`
 </Callout>
 
-## Disabled
+### Disabled
 
 This allows users to disable a server without removing it from a config. This is completely optional. By default all are enabled.
 
@@ -110,7 +144,6 @@ This allows users to disable a server without removing it from a config. This is
 {
   "mcpServers": {
     "my-server-name": {
-      "type": "http",
       "url": "https://example.com/mcp",
       "disabled": true
     }
@@ -118,10 +151,11 @@ This allows users to disable a server without removing it from a config. This is
 }
 ```
 
-## Config Interpolation
+### Config Interpolation
 
 <Callout type="note">
-Borrowed from [Cursor](https://cursor.com/docs/context/mcp) since they did a really good job.
+  Borrowed from [Cursor](https://cursor.com/docs/context/mcp) since they did a
+  really good job.
 </Callout>
 
 Use variables in mcp.json values. McpFile resolves variables in these fields: `command`, `args`, `env`, `url`, and `headers`.
@@ -134,7 +168,7 @@ Use variables in mcp.json values. McpFile resolves variables in these fields: `c
 - `${workspaceFolderBasename}` - name of the project root
 - `${pathSeparator}` and `${/}` - OS path separator
 
-### Local Server Example
+#### Local Server
 
 ```json title=".mcp.json"
 {
@@ -150,7 +184,7 @@ Use variables in mcp.json values. McpFile resolves variables in these fields: `c
 }
 ```
 
-### Remote Server Example
+#### Remote Server
 
 ```json title=".mcp.json"
 {
