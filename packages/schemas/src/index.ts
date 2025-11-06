@@ -15,7 +15,7 @@ export type Allowed = z.infer<typeof AllowedSchema>;
  * Base server configuration shared by all server types
  */
 export const BaseServerConfigSchema = z.object({
-  disabled: z.boolean().optional().default(false),
+  disabled: z.boolean().default(false),
   allowed: AllowedSchema.optional(),
   env: z.record(z.string(), z.string()).optional(),
   envFile: z.string().optional(),
@@ -27,7 +27,7 @@ export type BaseServerConfig = z.infer<typeof BaseServerConfigSchema>;
  * HTTP server configuration
  */
 export const HttpServerConfigSchema = BaseServerConfigSchema.extend({
-  type: z.string().optional().default("http"),
+  type: z.string().default("http"),
   url: z.url(),
   headers: z.record(z.string(), z.string()).optional(),
 });
@@ -38,7 +38,7 @@ export type HttpServerConfig = z.infer<typeof HttpServerConfigSchema>;
  * Stdio server configuration
  */
 export const StdioServerConfigSchema = BaseServerConfigSchema.extend({
-  type: z.string().optional().default("stdio"),
+  type: z.string().default("stdio"),
   command: z.string(),
   args: z.array(z.string()).optional(),
   cwd: z.string().optional(),
@@ -48,11 +48,29 @@ export type StdioServerConfig = z.infer<typeof StdioServerConfigSchema>;
 
 /**
  * Server configuration - either HTTP or Stdio
+ * Preprocesses to add type field if missing
  */
-export const ServerConfigSchema = z.union([
-  HttpServerConfigSchema,
-  StdioServerConfigSchema,
-]);
+export const ServerConfigSchema = z.preprocess((val) => {
+	if (typeof val === "object" && val !== null) {
+		const config = val as Record<string, unknown>;
+
+		// If type is already set, leave it
+		if ("type" in config && config.type) {
+			return config;
+		}
+
+		// Determine type based on fields
+		if ("url" in config) {
+			return { ...config, type: "http" };
+		}
+
+		if ("command" in config) {
+			return { ...config, type: "stdio" };
+		}
+	}
+
+	return val;
+}, z.union([HttpServerConfigSchema, StdioServerConfigSchema]));
 
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 
