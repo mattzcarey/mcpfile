@@ -25,8 +25,7 @@ async function main() {
 			name: "example-client",
 			version: "1.0.0",
 		},
-		transportConfig: serverParams.transportConfig,
-		metadata: serverParams._metadata,
+		server: serverParams,
 	});
 
 	console.log("Connected! Connection state:", await client.getState());
