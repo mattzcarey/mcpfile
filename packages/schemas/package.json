@@ -1,0 +1,33 @@
+{
+	"name": "@mcpfile/schemas",
+	"version": "0.0.1",
+	"description": "Zod schemas for MCP file format",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"package.json",
+		"README.md"
+	],
+	"scripts": {
+		"build": "tsdown src/index.ts",
+		"typecheck": "tsc --noEmit",
+		"dev": "tsdown --watch"
+	},
+	"author": "Matt Carey",
+	"license": "MIT",
+	"devDependencies": {
+		"tsdown": "latest"
+	},
+	"dependencies": {
+		"zod": "^4.1.12"
+	}
+}
