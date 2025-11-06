@@ -38,7 +38,7 @@ describe("File", () => {
       expect(server.transportConfig).toMatchObject({
         url: new URL("https://example.com/mcp"),
       });
-      expect(server._metadata.transportType).toBe("http");
+      expect(server.transportType).toBe("http");
       expect(server._metadata.serverName).toBe("my-server");
       expect(server._metadata.version).toBeDefined();
     });
@@ -76,7 +76,7 @@ describe("File", () => {
       });
 
       const params = file.getConnectParams();
-      expect(params["my-server"]._metadata.transportType).toBe("sse");
+      expect(params["my-server"].transportType).toBe("sse");
     });
   });
 
@@ -95,7 +95,7 @@ describe("File", () => {
       const server = params["my-server"];
       const config = server.transportConfig as any;
 
-      expect(server._metadata.transportType).toBe("stdio");
+      expect(server.transportType).toBe("stdio");
       expect(config.command).toBe("python");
       expect(config.args).toEqual(["server.py"]);
     });
@@ -302,6 +302,113 @@ describe("File", () => {
     });
   });
 
+  describe("Server Name Normalization", () => {
+    it("should keep valid server names unchanged", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "my-server-123": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-123"]).toBeDefined();
+    });
+
+    it("should keep underscores in server names", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          my_server_name: {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my_server_name"]).toBeDefined();
+    });
+
+    it("should normalize uppercase to lowercase", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "My-Server-Name": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+      expect(params["My-Server-Name"]).toBeUndefined();
+    });
+
+    it("should replace spaces with hyphens", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "my server name": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+    });
+
+    it("should replace special characters with hyphens", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "my@server!name": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+    });
+
+    it("should replace dots with hyphens", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "my.server.name": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+    });
+
+    it("should collapse multiple hyphens", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "my---server---name": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+    });
+
+    it("should remove leading and trailing hyphens", async () => {
+      const file = await File.fromJson({
+        mcpServers: {
+          "-my-server-name-": {
+            url: "https://example.com/mcp",
+          },
+        },
+      });
+
+      const params = file.getConnectParams();
+      expect(params["my-server-name"]).toBeDefined();
+    });
+  });
+
   describe("File Methods", () => {
     it("should load from file path", async () => {
       const configPath = join(testDir, "config.mcp.json");
@@ -337,7 +444,7 @@ describe("File", () => {
 
       const server = file.getServer("server-1");
       expect(server?._metadata.serverName).toBe("server-1");
-      expect(server?._metadata.transportType).toBe("http");
+      expect(server?.transportType).toBe("http");
     });
 
     it("should return undefined for non-existent server", async () => {

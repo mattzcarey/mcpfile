@@ -38,6 +38,7 @@ export class InterpolationError extends Data.TaggedError("InterpolationError")<{
   readonly message: string;
 }> {}
 
+
 export type ConfigError =
   | FileNotFoundError
   | ParseError
@@ -76,15 +77,10 @@ export interface ServerMetadata {
    */
   rawConfig: Record<string, unknown>;
 
-	/**
-	 * Normalized server name
-	 */
-	serverName: string;
-
   /**
-   * Transport type
+   * Normalized server name
    */
-  transportType: "stdio" | "http" | "sse";
+  serverName: string;
 
   /**
    * Whether this server is disabled
@@ -97,6 +93,8 @@ export interface ServerMetadata {
   allowed?: Allowed;
 }
 
+export type TransportType = "stdio" | "http" | "sse";
+
 /**
  * Connection parameters for a single server
  */
@@ -108,6 +106,11 @@ export interface ServerConnectParams {
    * - For sse: pass to `new SSEClientTransport(transportConfig)`
    */
   transportConfig: TransportConfig;
+
+  /**
+   * Transport type
+   */
+  transportType: TransportType;
 
   /**
    * Request options to pass to client.connect(transport, options)
@@ -146,6 +149,18 @@ export interface ParseOptions {
    * Falls back to process.env if not provided
    */
   env?: Record<string, string>;
+}
+
+/**
+ * Normalize server name
+ * Converts to lowercase, replaces spaces and special chars with hyphens
+ */
+function normalizeServerName(serverName: string): string {
+  return serverName
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-") // Replace invalid chars with hyphen
+    .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
+    .replace(/-+/g, "-"); // Collapse multiple hyphens
 }
 
 /**
@@ -254,7 +269,7 @@ function configToTransport(
   serverId: string,
   config: ServerConfig
 ): Effect.Effect<
-  { transportConfig: TransportConfig; transportType: "stdio" | "http" | "sse" },
+  { transportConfig: TransportConfig; transportType: TransportType },
   never
 > {
   return Effect.gen(function* () {
@@ -269,7 +284,9 @@ function configToTransport(
 
       const transportConfig: HttpTransportConfig = {
         url: new URL(config.url),
-        opts: config.headers ? { requestInit: { headers: config.headers } } : undefined,
+        opts: config.headers
+          ? { requestInit: { headers: config.headers } }
+          : undefined,
       };
 
       return { transportConfig, transportType: "http" as const };
@@ -283,7 +300,9 @@ function configToTransport(
 
       const transportConfig: SseTransportConfig = {
         url: new URL(config.url),
-        opts: config.headers ? { requestInit: { headers: config.headers } } : undefined,
+        opts: config.headers
+          ? { requestInit: { headers: config.headers } }
+          : undefined,
       };
 
       return { transportConfig, transportType: "sse" as const };
@@ -342,18 +361,6 @@ function configToTransport(
  *
  * // Get connection parameters
  * const params = file.getConnectParams();
- *
- * // Connect to all servers
- * for (const [serverId, { transport, options, metadata }] of Object.entries(params)) {
- *   const mcpTransport = transport.type === "stdio"
- *     ? new StdioClientTransport(transport)
- *     : new StreamableHTTPClientTransport(transport.url);
- *
- *   const client = new Client({ name: "my-app", version: "1.0.0" });
- *   await client.connect(mcpTransport, options);
- *
- *   console.log(`Connected to ${serverId}`);
- * }
  * ```
  */
 export class File {
@@ -429,11 +436,14 @@ export class File {
         const params: ConnectParams = {};
 
         for (const [serverId, config] of Object.entries(parsed.mcpServers)) {
+          // Normalize server name
+          const normalizedServerName = normalizeServerName(serverId);
+
           // Store rawConfig before validation/defaults
           const rawConfig = config as Record<string, unknown>;
 
           // Validate and parse to apply defaults
-          const parsedConfig = yield* validateServerConfig(serverId, config);
+          const parsedConfig = yield* validateServerConfig(normalizedServerName, config);
 
           if (parsedConfig.disabled && !options.includeDisabled) {
             continue;
@@ -445,18 +455,18 @@ export class File {
           )) as ServerConfig;
 
           const { transportConfig, transportType } = yield* configToTransport(
-            serverId,
+            normalizedServerName,
             interpolatedConfig
           );
 
-          params[serverId] = {
+          params[normalizedServerName] = {
             transportConfig,
+            transportType,
             options: undefined,
             _metadata: {
               version: "0.0.1",
               rawConfig,
-              serverName: serverId,
-              transportType,
+              serverName: normalizedServerName,
               disabled: parsedConfig.disabled ?? false,
               allowed: parsedConfig.allowed,
             },
