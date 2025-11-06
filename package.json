@@ -11,11 +11,15 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
-		"@types/node": "^24.9.2"
+		"@types/node": "^24.9.2",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.7",
+		"tsdown": "latest"
 	},
 	"packageManager": "npm@10.9.3",
 	"workspaces": [
 		"sites/*",
-		"packages/*"
+		"packages/*",
+		"examples/*"
 	]
 }
