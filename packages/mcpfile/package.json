@@ -20,11 +20,19 @@
 	"scripts": {
 		"build": "tsdown src/index.ts",
 		"typecheck": "tsc --noEmit",
-		"dev": "tsdown --watch"
+		"dev": "tsdown --watch",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"author": "Matt Carey",
 	"license": "MIT",
 	"devDependencies": {
-		"tsdown": "latest"
+		"tsdown": "latest",
+		"vitest": "^4.0.7"
+	},
+	"dependencies": {
+		"@mcpfile/schemas": "*",
+		"@modelcontextprotocol/sdk": "^1.21.0",
+		"effect": "^3.19.1"
 	}
 }

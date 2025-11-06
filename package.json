@@ -11,6 +11,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
+		"@effect/language-service": "^0.55.2",
 		"@types/node": "^24.9.2",
 		"typescript": "^5.9.3",
 		"vitest": "^4.0.7",
