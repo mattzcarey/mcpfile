@@ -3,7 +3,7 @@ import { Client as McpClient } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import type { Implementation as ClientInfo } from "@modelcontextprotocol/sdk/types.js";
+import type { Implementation as ClientInfo, ServerCapabilities, Implementation } from "@modelcontextprotocol/sdk/types.js";
 import type { ServerConnectParams } from "./file.js";
 
 /**
@@ -115,6 +115,8 @@ export const makeClient = (config: ClientConfig): Effect.Effect<{
 	getPrompt: (name: string, args?: Record<string, string>) => Effect.Effect<any, ConnectionError | NotConnectedError | FilteredError>;
 	listResources: Effect.Effect<any, ConnectionError | NotConnectedError>;
 	readResource: (uri: string) => Effect.Effect<any, ConnectionError | NotConnectedError | FilteredError>;
+	// Internal access to mcpClient for ManagedClient
+	_mcpClient: McpClient;
 }, ConnectionError, Scope.Scope> =>
 	Effect.gen(function* () {
 		// Initialize client state
@@ -206,6 +208,9 @@ export const makeClient = (config: ClientConfig): Effect.Effect<{
 			connect,
 			disconnect,
 			getState: Ref.get(connectionState),
+
+			// Internal access
+			_mcpClient: mcpClient,
 
 			// Tools
 			listTools: Effect.gen(function* () {
@@ -328,6 +333,7 @@ export class ManagedClient {
 	private constructor(
 		private readonly client: Client,
 		private readonly scope: Scope.CloseableScope,
+		private readonly mcpClient: McpClient,
 	) {}
 
 	/**
@@ -338,7 +344,7 @@ export class ManagedClient {
 			Effect.gen(function* () {
 				const scope = yield* Scope.make();
 				const client = yield* Scope.extend(makeClient(config), scope);
-				return new ManagedClient(client, scope);
+				return new ManagedClient(client, scope, client._mcpClient);
 			}),
 		);
 	}
@@ -402,5 +408,34 @@ export class ManagedClient {
 	 */
 	async readResource(uri: string): Promise<any> {
 		return Effect.runPromise(this.client.readResource(uri));
+	}
+
+	/**
+	 * Get server capabilities (only available after connection)
+	 */
+	getServerCapabilities(): ServerCapabilities | undefined {
+		return this.mcpClient.getServerCapabilities();
+	}
+
+	/**
+	 * Get server version info (only available after connection)
+	 */
+	getServerVersion(): Implementation | undefined {
+		return this.mcpClient.getServerVersion();
+	}
+
+	/**
+	 * Get server instructions (only available after connection)
+	 */
+	getInstructions(): string | undefined {
+		return this.mcpClient.getInstructions();
+	}
+
+	/**
+	 * Get session ID from transport (only for stateful connections like SSE/Stdio)
+	 * HTTP connections are stateless and won't have a session ID
+	 */
+	getSessionId(): string | undefined {
+		return this.mcpClient.transport?.sessionId;
 	}
 }

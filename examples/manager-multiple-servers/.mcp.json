@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cloudflare-docs-1": {
+      "type": "http",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "cloudflare-docs-2": {
+      "type": "http",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
+    }
+  }
+}

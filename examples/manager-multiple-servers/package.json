@@ -1,0 +1,21 @@
+{
+  "name": "@mcpfile/examples-manager-multiple-servers",
+  "version": "1.0.0",
+  "description": "Example of using ClientManager with multiple MCP servers",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "mcpfile": "file:../../packages/mcpfile",
+    "effect": "^3.11.9",
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
