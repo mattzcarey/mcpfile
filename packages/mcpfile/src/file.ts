@@ -253,22 +253,40 @@ function validateServerConfig(
 function configToTransport(
   serverId: string,
   config: ServerConfig
-): Effect.Effect<Transport, never> {
+): Effect.Effect<
+  { transportConfig: TransportConfig; transportType: "stdio" | "http" | "sse" },
+  never
+> {
   return Effect.gen(function* () {
     // Use the type field from parsed config (defaults are applied by schema)
     const serverType = config.type;
 
-    if (serverType === "http" || serverType === "sse") {
-      // HTTP/SSE server
+    if (serverType === "http") {
+      // HTTP server
       if (!("url" in config)) {
         return yield* Effect.die(`HTTP server ${serverId} missing url field`);
       }
 
-      return {
-        type: "http" as const,
+      const transportConfig: HttpTransportConfig = {
         url: new URL(config.url),
-        headers: config.headers,
+        opts: config.headers ? { requestInit: { headers: config.headers } } : undefined,
       };
+
+      return { transportConfig, transportType: "http" as const };
+    }
+
+    if (serverType === "sse") {
+      // SSE server
+      if (!("url" in config)) {
+        return yield* Effect.die(`SSE server ${serverId} missing url field`);
+      }
+
+      const transportConfig: SseTransportConfig = {
+        url: new URL(config.url),
+        opts: config.headers ? { requestInit: { headers: config.headers } } : undefined,
+      };
+
+      return { transportConfig, transportType: "sse" as const };
     }
 
     if (serverType === "stdio") {
@@ -293,13 +311,14 @@ function configToTransport(
         Object.assign(envVars, config.env);
       }
 
-      return {
-        type: "stdio" as const,
+      const transportConfig: StdioServerParameters = {
         command: config.command,
         args: config.args,
         env: envVars,
         cwd: config.cwd,
       };
+
+      return { transportConfig, transportType: "stdio" as const };
     }
 
     return yield* Effect.die(
@@ -383,7 +402,7 @@ export class File {
             }),
         });
 
-        return await File.fromJson(json, parseOptions);
+        return yield* Effect.promise(() => File.fromJson(json, parseOptions));
       })
     );
   }
@@ -410,6 +429,9 @@ export class File {
         const params: ConnectParams = {};
 
         for (const [serverId, config] of Object.entries(parsed.mcpServers)) {
+          // Store rawConfig before validation/defaults
+          const rawConfig = config as Record<string, unknown>;
+
           // Validate and parse to apply defaults
           const parsedConfig = yield* validateServerConfig(serverId, config);
 
@@ -421,16 +443,20 @@ export class File {
             parsedConfig,
             options
           )) as ServerConfig;
-          const transport = yield* configToTransport(
+
+          const { transportConfig, transportType } = yield* configToTransport(
             serverId,
             interpolatedConfig
           );
 
           params[serverId] = {
-            transport,
+            transportConfig,
             options: undefined,
-            metadata: {
-              serverId,
+            _metadata: {
+              version: "0.0.1",
+              rawConfig,
+              serverName: serverId,
+              transportType,
               disabled: parsedConfig.disabled ?? false,
               allowed: parsedConfig.allowed,
             },
